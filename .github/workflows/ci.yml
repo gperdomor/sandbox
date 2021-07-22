@@ -49,7 +49,25 @@ jobs:
           cmd2: npx nx affected --base=HEAD~1 --target=test --parallel --max-parallel=3
           cmd3: npx nx affected --base=HEAD~1 --target=lint --parallel --max-parallel=3
           cmd4: npx nx affected --base=HEAD~1 --target=e2e
+
       - run: npx nx-cloud stop-all-agents
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'docker build'
+        run: npm run nx affected -- --target=docker --all
+        env:
+          NX_CLOUD_DISTRIBUTED_EXECUTION: false
+          INPUT_PUSH: true
+          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pr:
     runs-on: ubuntu-latest
@@ -59,10 +77,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
           cache: 'npm'
+
       - run: npm install
       - name: Run verification
         uses: JamesHenry/parallel-bash-commands@v0.1
@@ -71,4 +91,22 @@ jobs:
           cmd2: npx nx affected --base=origin/main --target=test --parallel --max-parallel=3
           cmd3: npx nx affected --base=origin/main --target=lint --parallel --max-parallel=3
           cmd4: npx nx affected --base=origin/main --target=e2e
+
       - run: npx nx-cloud stop-all-agents
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'docker build'
+        run: npm run nx affected -- --target=docker --all
+        env:
+          NX_CLOUD_DISTRIBUTED_EXECUTION: false
+          INPUT_PUSH: true
+          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

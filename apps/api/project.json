@@ -55,7 +55,7 @@
         "no_cache": true,
         "meta": {
           "enabled": true,
-          "images": ["gcr.io/gperdomor/nx-docker-sandbox/api"],
+          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/api"],
           "tags": [
             "type=schedule",
             "type=ref,event=branch",
