@@ -1,0 +1,13 @@
+.cache
+.git
+.github
+.gitlab
+.gitlab-ci.yml
+.prettierrc
+.vscode
+dist
+docker-compose.yml
+node_modules
+tmp
+tools
+!tools/scripts/entrypoints

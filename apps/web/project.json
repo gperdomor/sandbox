@@ -84,6 +84,25 @@
         "jestConfig": "apps/web/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "docker": {
+      "executor": "@nx-tools/nx-docker:build",
+      "options": {
+        "file": "apps/web/Dockerfile",
+        "push": false,
+        "no_cache": true,
+        "meta": {
+          "enabled": true,
+          "images": ["gcr.io/gperdomor/nx-docker-sandbox/web"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix="
+          ]
+        }
+      }
     }
   },
   "tags": ["web"]

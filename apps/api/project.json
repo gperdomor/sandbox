@@ -10,7 +10,8 @@
         "outputPath": "dist/apps/api",
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": ["apps/api/src/assets"]
+        "assets": ["apps/api/src/assets"],
+        "generatePackageJson": true
       },
       "configurations": {
         "production": {
@@ -45,7 +46,26 @@
         "jestConfig": "apps/api/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "docker": {
+      "executor": "@nx-tools/nx-docker:build",
+      "options": {
+        "file": "apps/api/Dockerfile",
+        "push": false,
+        "no_cache": true,
+        "meta": {
+          "enabled": true,
+          "images": ["gcr.io/gperdomor/nx-docker-sandbox/api"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix="
+          ]
+        }
+      }
     }
   },
-  "tags": []
+  "tags": ["api"]
 }
