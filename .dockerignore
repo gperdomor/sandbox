@@ -1,11 +1,14 @@
 .cache
+.env
+.env.*
 .git
 .github
 .gitlab
 .gitlab-ci.yml
+.npmrc
 .prettierrc
 .vscode
-dist
+# dist
 docker-compose.yml
 node_modules
 tmp

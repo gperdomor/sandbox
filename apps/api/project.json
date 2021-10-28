@@ -35,6 +35,7 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/api/**/*.ts"]
       }
@@ -50,18 +51,17 @@
     "docker": {
       "executor": "@nx-tools/nx-docker:build",
       "options": {
-        "file": "apps/api/Dockerfile",
-        "push": false,
-        "no_cache": true,
-        "meta": {
-          "enabled": true,
+        "metadata": {
           "images": ["ghcr.io/gperdomor/nx-docker-sandbox/api"],
           "tags": [
             "type=schedule",
             "type=ref,event=branch",
             "type=ref,event=tag",
             "type=ref,event=pr",
-            "type=sha,prefix="
+            "type=semver,pattern={{version}}",
+            "type=semver,pattern={{major}}.{{minor}}",
+            "type=semver,pattern={{major}}",
+            "type=sha,prefix=sha-"
           ]
         }
       }

@@ -1,7 +1,10 @@
 {
   "npmScope": "nx-docker-sandbox",
   "affected": {
-    "defaultBase": "master"
+    "defaultBase": "main"
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
   },
   "implicitDependencies": {
     "package.json": {
@@ -17,7 +20,8 @@
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "accessToken": "Y2Q3OWRkYWMtMTliNS00MjMzLTkzZGMtOWZjYmUwYjQ5ZjJmfHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,
-        "showUsageWarnings": true
+        "showUsageWarnings": true,
+        "scan": true
       }
     }
   },
@@ -27,7 +31,29 @@
         "target": "build",
         "projects": "dependencies"
       }
+    ],
+    "docker": [
+      {
+        "target": "build",
+        "projects": "self"
+      }
     ]
   },
-  "projects": {}
+  "generators": {
+    "@nrwl/angular:application": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "jest"
+    },
+    "@nrwl/angular:component": {
+      "style": "css"
+    }
+  },
+  "defaultProject": "api"
 }
