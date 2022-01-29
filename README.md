@@ -4,7 +4,7 @@ This project was generated using [Nx](https://nx.dev).
 
 <p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
 
-🔎 **Smart, Extensible Build Framework**
+🔎 **Smart, Fast and Extensible Build System**
 
 ## Adding capabilities to your workspace
 
@@ -71,7 +71,7 @@ Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
 
 ## Understand your workspace
 
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+Run `nx graph` to see a diagram of the dependencies of your projects.
 
 ## Further help
 

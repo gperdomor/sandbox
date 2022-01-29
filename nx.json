@@ -20,8 +20,7 @@
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "accessToken": "Y2Q3OWRkYWMtMTliNS00MjMzLTkzZGMtOWZjYmUwYjQ5ZjJmfHJlYWQtd3JpdGU=",
         "canTrackAnalytics": false,
-        "showUsageWarnings": true,
-        "scan": true
+        "showUsageWarnings": true
       }
     }
   },
@@ -39,21 +38,18 @@
       }
     ]
   },
+  "defaultProject": "api",
   "generators": {
-    "@nrwl/angular:application": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "jest",
-      "e2eTestRunner": "cypress"
+    "@nrwl/react": {
+      "application": {
+        "babel": true
+      }
     },
-    "@nrwl/angular:library": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "jest"
-    },
-    "@nrwl/angular:component": {
-      "style": "css"
+    "@nrwl/next": {
+      "application": {
+        "style": "css",
+        "linter": "eslint"
+      }
     }
-  },
-  "defaultProject": "api"
+  }
 }
