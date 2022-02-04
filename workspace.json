@@ -2,7 +2,14 @@
   "version": 2,
   "projects": {
     "api": "apps/api",
-    "web": "apps/web",
-    "web-e2e": "apps/web-e2e"
+    "books-data-access": "libs/books/data-access",
+    "books-feature": "libs/books/feature",
+    "books-ui": "libs/books/ui",
+    "bookstore": "apps/bookstore",
+    "bookstore-e2e": "apps/bookstore-e2e",
+    "cart-data-access": "libs/cart/data-access",
+    "cart-feature": "libs/cart/feature",
+    "shared-models": "libs/shared-models",
+    "ui": "libs/ui"
   }
 }

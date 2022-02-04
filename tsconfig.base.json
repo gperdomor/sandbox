@@ -14,7 +14,15 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@acme/books/data-access": ["libs/books/data-access/src/index.ts"],
+      "@acme/books/feature": ["libs/books/feature/src/index.ts"],
+      "@acme/books/ui": ["libs/books/ui/src/index.ts"],
+      "@acme/cart/data-access": ["libs/cart/data-access/src/index.ts"],
+      "@acme/cart/feature": ["libs/cart/feature/src/index.ts"],
+      "@acme/shared-models": ["libs/shared-models/src/index.ts"],
+      "@acme/ui": ["libs/ui/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
