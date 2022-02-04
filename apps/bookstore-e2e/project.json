@@ -1,0 +1,28 @@
+{
+  "root": "apps/bookstore-e2e",
+  "sourceRoot": "apps/bookstore-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/bookstore-e2e/cypress.json",
+        "devServerTarget": "bookstore:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "bookstore:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/bookstore-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["bookstore"]
+}

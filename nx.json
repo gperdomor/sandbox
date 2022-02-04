@@ -1,10 +1,10 @@
 {
-  "npmScope": "nx-docker-sandbox",
+  "npmScope": "acme",
   "affected": {
     "defaultBase": "main"
   },
   "cli": {
-    "defaultCollection": "@nrwl/nest"
+    "defaultCollection": "@nrwl/react"
   },
   "implicitDependencies": {
     "package.json": {
@@ -38,18 +38,21 @@
       }
     ]
   },
-  "defaultProject": "api",
   "generators": {
     "@nrwl/react": {
       "application": {
+        "style": "styled-components",
+        "linter": "eslint",
         "babel": true
-      }
-    },
-    "@nrwl/next": {
-      "application": {
-        "style": "css",
+      },
+      "component": {
+        "style": "styled-components"
+      },
+      "library": {
+        "style": "styled-components",
         "linter": "eslint"
       }
     }
-  }
+  },
+  "defaultProject": "bookstore"
 }
