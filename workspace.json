@@ -1,6 +1,8 @@
 {
   "version": 2,
   "projects": {
+    "angular-app": "apps/angular-app",
+    "angular-app-e2e": "apps/angular-app-e2e",
     "nest-app": "apps/nest-app",
     "next-app": "apps/next-app",
     "next-app-e2e": "apps/next-app-e2e",
