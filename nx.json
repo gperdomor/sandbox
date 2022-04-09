@@ -1,10 +1,10 @@
 {
-  "npmScope": "acme",
+  "npmScope": "nx-docker-sandbox",
   "affected": {
     "defaultBase": "main"
   },
   "cli": {
-    "defaultCollection": "@nrwl/react"
+    "defaultCollection": "@nrwl/workspace"
   },
   "implicitDependencies": {
     "package.json": {
@@ -30,29 +30,6 @@
         "target": "build",
         "projects": "dependencies"
       }
-    ],
-    "docker": [
-      {
-        "target": "build",
-        "projects": "self"
-      }
     ]
-  },
-  "generators": {
-    "@nrwl/react": {
-      "application": {
-        "style": "styled-components",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "styled-components"
-      },
-      "library": {
-        "style": "styled-components",
-        "linter": "eslint"
-      }
-    }
-  },
-  "defaultProject": "bookstore"
+  }
 }
