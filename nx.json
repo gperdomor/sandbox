@@ -30,6 +30,12 @@
         "target": "build",
         "projects": "dependencies"
       }
+    ],
+    "docker": [
+      {
+        "target": "build",
+        "projects": "self"
+      }
     ]
   },
   "generators": {

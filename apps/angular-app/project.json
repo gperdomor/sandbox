@@ -81,6 +81,25 @@
         "jestConfig": "apps/angular-app/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "docker": {
+      "executor": "@nx-tools/nx-docker:build",
+      "options": {
+        "metadata": {
+          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/angular-app"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=semver,pattern={{version}}",
+            "type=semver,pattern={{major}}.{{minor}}",
+            "type=semver,pattern={{major}}",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
     }
   },
   "tags": []

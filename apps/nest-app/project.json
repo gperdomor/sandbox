@@ -10,7 +10,8 @@
         "outputPath": "dist/apps/nest-app",
         "main": "apps/nest-app/src/main.ts",
         "tsConfig": "apps/nest-app/tsconfig.app.json",
-        "assets": ["apps/nest-app/src/assets"]
+        "assets": ["apps/nest-app/src/assets"],
+        "generatePackageJson": true
       },
       "configurations": {
         "production": {
@@ -45,6 +46,25 @@
       "options": {
         "jestConfig": "apps/nest-app/jest.config.js",
         "passWithNoTests": true
+      }
+    },
+    "docker": {
+      "executor": "@nx-tools/nx-docker:build",
+      "options": {
+        "metadata": {
+          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/nest-app"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=semver,pattern={{version}}",
+            "type=semver,pattern={{major}}.{{minor}}",
+            "type=semver,pattern={{major}}",
+            "type=sha,prefix=sha-"
+          ]
+        }
       }
     }
   },

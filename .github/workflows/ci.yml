@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'

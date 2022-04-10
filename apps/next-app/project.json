@@ -48,6 +48,25 @@
       "options": {
         "lintFilePatterns": ["apps/next-app/**/*.{ts,tsx,js,jsx}"]
       }
+    },
+    "docker": {
+      "executor": "@nx-tools/nx-docker:build",
+      "options": {
+        "metadata": {
+          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/next-app"],
+          "load": true,
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=semver,pattern={{version}}",
+            "type=semver,pattern={{major}}.{{minor}}",
+            "type=semver,pattern={{major}}",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
     }
   },
   "tags": []

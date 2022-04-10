@@ -61,6 +61,8 @@
     "@nrwl/react": "13.10.1",
     "@nrwl/web": "13.10.1",
     "@nrwl/workspace": "13.10.1",
+    "@nx-tools/docker-metadata": "3.0.0-alpha.1",
+    "@nx-tools/nx-docker": "3.0.0-alpha.1",
     "@swc/core": "~1.2.143",
     "@swc/jest": "0.2.15",
     "@testing-library/react": "12.1.4",
