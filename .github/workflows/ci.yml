@@ -1,29 +1,34 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
 
 env:
   NX_CLOUD_DISTRIBUTED_EXECUTION: true
+  NX_BRANCH: ${{ github.event.number || github.ref }}
+  NX_RUN_GROUP: ${{ github.run_id }}
+  NX_CLOUD_AUTH_TOKEN: ${{ secrets.NX_CLOUD_AUTH_TOKEN }}
+  PRISMA_HIDE_UPDATE_MESSAGE: 'true'
 
 jobs:
   agents:
-    name: Nx Cloud Agents
+    name: Agent ${{ matrix.agent }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
         agent: [1, 2]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
           cache: 'npm'
-      - run: npm install
+          node-version-file: '.nvmrc'
+      - run: npm ci
       - name: Start Nx Agent ${{ matrix.agent }}
         run: npx nx-cloud start-agent
 
@@ -31,17 +36,17 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout [main]
+      - name: Checkout [main]
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
           cache: 'npm'
-      - run: npm install
+          node-version-file: '.nvmrc'
+      - run: npm ci
       - run: npx nx-cloud start-ci-run
       - run: npx nx affected --target=build --parallel --max-parallel=3
       - run: npx nx affected --target=lint  --parallel --max-parallel=3
@@ -52,17 +57,18 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout [pr]
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
           cache: 'npm'
-      - run: npm install
+          node-version-file: '.nvmrc'
+      - run: npm ci
       - run: npx nx-cloud start-ci-run
       - run: npx nx affected --target=build --parallel --max-parallel=3
       - run: npx nx affected --target=lint  --parallel --max-parallel=3
@@ -94,10 +100,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
           cache: 'npm'
+          node-version-file: '.nvmrc'
       - run: npm install
       - run: npx nx affected --target=docker
         env:
