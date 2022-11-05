@@ -39,6 +39,8 @@
     "@nx-tools/container-metadata": "4.0.0-alpha.9",
     "@nx-tools/nx-container": "4.0.0-alpha.9",
     "@nx-tools/nx-prisma": "4.0.0-alpha.9",
+    "@swc/core": "^1.2.173",
+    "@swc/jest": "0.2.20",
     "@testing-library/react": "13.4.0",
     "@types/jest": "28.1.1",
     "@types/node": "18.7.18",
@@ -61,6 +63,7 @@
     "nx": "15.0.10",
     "prettier": "^2.6.2",
     "react-test-renderer": "18.2.0",
+    "swc-loader": "0.1.15",
     "ts-jest": "28.0.5",
     "ts-node": "10.9.1",
     "typescript": "~4.8.2"

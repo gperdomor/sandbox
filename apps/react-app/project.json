@@ -9,7 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "compiler": "babel",
+        "compiler": "swc",
         "outputPath": "dist/apps/react-app",
         "index": "apps/react-app/src/index.html",
         "baseHref": "/",
@@ -49,7 +49,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "react-app:build",
-        "hmr": true
+        "hmr": true,
+        "port": 4300
       },
       "configurations": {
         "development": {
