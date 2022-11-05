@@ -62,8 +62,6 @@ jobs:
         with:
           name: nx-main-artifacts
           path: dist
-      - run: ls
-      - run: ls dist
       - run: npm install
       - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
         env:
@@ -71,3 +69,31 @@ jobs:
           INPUT_NEST_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/nest-app-with-docker
           INPUT_NEXT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/next-app-with-docker
           INPUT_REACT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/react-app-with-docker
+
+  podman-build:
+    needs: main
+    runs-on: ubuntu-latest
+    env:
+      INPUT_PUSH: true
+      INPUT_ENGINE: podman
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Login to GitHub Container Registry
+        run: echo "${{ github.token }}" | podman login -u ${{ github.actor }} --password-stdin ghcr.io/${{ github.repository_owner }}
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+      - name: 'Downloading artifacts'
+        uses: actions/download-artifact@v3
+        with:
+          name: nx-main-artifacts
+          path: dist
+      - run: npm install
+      - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
+        env:
+          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NEST_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/nest-app-with-podman
+          INPUT_NEXT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/next-app-with-podman
+          INPUT_REACT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/react-app-with-podman
