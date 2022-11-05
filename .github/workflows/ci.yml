@@ -1,110 +1,63 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: CI
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
 
 env:
-  NX_CLOUD_DISTRIBUTED_EXECUTION: true
-  NX_BRANCH: ${{ github.event.number || github.ref }}
-  NX_RUN_GROUP: ${{ github.run_id }}
   NX_CLOUD_AUTH_TOKEN: ${{ secrets.NX_CLOUD_AUTH_TOKEN }}
   PRISMA_HIDE_UPDATE_MESSAGE: 'true'
 
 jobs:
-  agents:
-    name: Agent ${{ matrix.agent }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        agent: [1, 2]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-      - run: npm ci
-      - name: Start Nx Agent ${{ matrix.agent }}
-        run: npx nx-cloud start-agent
-
   main:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' }}
-    steps:
-      - name: Checkout [main]
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-      - run: npm ci
-      - run: npx nx-cloud start-ci-run
-      - run: npx nx affected --target=build --parallel --max-parallel=3
-      - run: npx nx affected --target=lint  --parallel --max-parallel=3
-      - run: npx nx affected --target=test  --parallel --max-parallel=2 --code-coverage
-      - run: npx nx-cloud stop-all-agents
+    name: Nx Cloud - Main Job
+    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
+    with:
+      number-of-agents: 3
+      parallel-commands: |
+        npx nx-cloud record -- npx nx workspace-lint
+        npx nx-cloud record -- npx nx format:check
+      parallel-commands-on-agents: |
+        npx nx affected --target=lint --parallel=3
+        npx nx affected --target=test --parallel=3 --ci --code-coverage
+        npx nx affected --target=e2e --parallel=3 --ci --code-coverage
+        npx nx affected --target=build --parallel=3
 
-  pr:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
-    steps:
-      - name: Checkout [pr]
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v2
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-      - run: npm ci
-      - run: npx nx-cloud start-ci-run
-      - run: npx nx affected --target=build --parallel --max-parallel=3
-      - run: npx nx affected --target=lint  --parallel --max-parallel=3
-      - run: npx nx affected --target=test  --parallel --max-parallel=2 --code-coverage
-      - run: npx nx-cloud stop-all-agents
+  agents:
+    name: Nx Cloud - Agents
+    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.8
+    with:
+      number-of-agents: 3
 
   docker-build:
-    if: ${{ github.event_name != 'pull_request' }}
     needs: main
     runs-on: ubuntu-latest
     env:
-      NX_CLOUD_DISTRIBUTED_EXECUTION: false
       INPUT_PUSH: true
-      INPUT_CACHE_FROM: type=registry,ref=ghcr.io/gperdomor/nx-docker-sandbox/api:buildcache
-      INPUT_CACHE_TO: type=registry,ref=ghcr.io/gperdomor/nx-docker-sandbox/api:buildcache,mode=max
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v2
+        uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
       - run: npm install
-      - run: npx nx affected --target=docker
+      - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
         env:
           INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_NEST_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/nest-app-with-docker
+          INPUT_NEXT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/next-app-with-docker
+          INPUT_REACT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/react-app-with-docker
