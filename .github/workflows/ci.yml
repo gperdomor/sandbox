@@ -12,7 +12,7 @@ env:
 jobs:
   main:
     name: Nx Cloud - Main Job
-    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
+    uses: ./.github/workflows/nx-cloud-main.yml
     with:
       number-of-agents: 3
       parallel-commands: |
@@ -23,6 +23,7 @@ jobs:
         npx nx affected --target=test --parallel=3 --ci --code-coverage
         npx nx affected --target=e2e --parallel=3 --ci --code-coverage
         npx nx affected --target=build --parallel=3
+      artifacts: dist/
 
   agents:
     name: Nx Cloud - Agents
@@ -56,6 +57,13 @@ jobs:
         with:
           cache: 'npm'
           node-version-file: '.nvmrc'
+      - name: 'Downloading artifacts'
+        uses: actions/download-artifact@v3
+        with:
+          name: nx-main-artifacts
+          path: dist
+      - run: ls
+      - run: ls dist
       - run: npm install
       - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
         env:
