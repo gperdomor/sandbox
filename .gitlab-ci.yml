@@ -1,0 +1,155 @@
+include:
+  - template: Workflows/MergeRequest-Pipelines.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Jobs/Code-Quality.gitlab-ci.yml
+  - template: Jobs/Code-Intelligence.gitlab-ci.yml
+
+stages:
+  - affected
+  - test
+
+default:
+  image: node:18.12.0
+
+variables:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+
+###############################
+### Included Jobs
+
+license_scanning:
+  needs: []
+  variables:
+    ASDF_NODEJS_VERSION: '18.12.0'
+
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+secret_detection:
+  needs: []
+
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+dependency_scanning:
+  needs: []
+
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+sast:
+  needs: []
+
+code_quality:
+  artifacts:
+    paths: [gl-code-quality-report.json]
+
+.base-cache:
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - '.npm'
+    # policy: pull
+
+# Creating template for a job running DTE (orchestrator)
+.base-pipeline:
+  extends: [.base-cache]
+  interruptible: true
+  before_script:
+    - npm ci --cache .npm --prefer-offline
+    - NX_HEAD=$CI_COMMIT_SHA
+    - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
+  artifacts:
+    expire_in: 5 days
+    paths:
+      - node_modules/.cache/nx
+      - dist
+
+# Main job running DTE
+nx-dte:
+  stage: affected
+  extends: .base-pipeline
+  script:
+    - npx nx-cloud start-ci-run --stop-agents-after="build"
+    - npx nx-cloud record -- npx nx workspace-lint --base=$NX_BASE --head=$NX_HEAD
+    - npx nx-cloud record -- npx nx format:check --base=$NX_BASE --head=$NX_HEAD
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=test --parallel=3 --ci --code-coverage
+    # - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
+
+# Create as many agents as you want
+nx-dte-agents:
+  # parallel: 2
+  stage: affected
+  extends: .base-pipeline
+  script:
+    - npx nx-cloud start-agent
+
+docker-build:
+  extends: [.base-cache]
+  image: gperdomor/nx-docker:18.12.0-alpine
+  services:
+    - docker:20.10.21-dind
+  needs:
+    - nx-dte
+  variables:
+    NX_CLOUD_DISTRIBUTED_EXECUTION: 'false'
+    # Docker config
+    DOCKER_BUILDKIT: 1
+    DOCKER_DRIVER: overlay2
+    # Nx Contaienr
+    INPUT_PUSH: 'true'
+    INPUT_ENGINE: 'docker'
+    INPUT_NEST_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/nest-app-with-docker
+    INPUT_NEXT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/next-app-with-docker
+    INPUT_REACT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/react-app-with-docker
+  before_script:
+    - !reference [.base-pipeline, before_script]
+    # Login to registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
+
+podman-build:
+  extends: [.base-cache]
+  image: gperdomor/nx-podman:18.12.0
+  needs:
+    - nx-dte
+  variables:
+    NX_CLOUD_DISTRIBUTED_EXECUTION: 'false'
+    # Nx Contaienr
+    INPUT_PUSH: 'true'
+    INPUT_ENGINE: 'podman'
+    INPUT_NEST_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/nest-app-with-podman
+    INPUT_NEXT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/next-app-with-podman
+    INPUT_REACT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/react-app-with-podman
+  before_script:
+    - eval "$(fnm env --shell=bash)"
+    - !reference [.base-pipeline, before_script]
+    # Login to registry
+    - echo "$CI_REGISTRY_PASSWORD" | podman login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
+
+kaniko-build:
+  extends: [.base-cache]
+  image:
+    name: gperdomor/nx-kaniko:18.12.0-alpine
+    entrypoint: ['']
+  needs:
+    - nx-dte
+  variables:
+    NX_CLOUD_DISTRIBUTED_EXECUTION: 'false'
+    # Nx Contaienr
+    INPUT_PUSH: 'true'
+    INPUT_ENGINE: 'kaniko'
+    INPUT_NEST_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/nest-app-with-kaniko
+    INPUT_NEXT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/next-app-with-kaniko
+    INPUT_REACT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/react-app-with-kaniko
+  before_script:
+    - !reference [.base-pipeline, before_script]
+    # Login to registry
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
+  script:
+    # --parallel=1 needs to be 1 to work properly
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=1
