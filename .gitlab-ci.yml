@@ -112,7 +112,7 @@ docker-build:
 
 podman-build:
   extends: [.base-cache]
-  image: gperdomor/nx-podman:18.12.0
+  image: gperdomor/nx-podman:19.0.0
   needs:
     - nx-dte
   variables:
@@ -124,7 +124,6 @@ podman-build:
     INPUT_NEXT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/next-app-with-podman
     INPUT_REACT_APP_IMAGES: registry.gitlab.com/gperdomor/nx-container-sandbox/react-app-with-podman
   before_script:
-    - eval "$(fnm env --shell=bash)"
     - !reference [.base-pipeline, before_script]
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | podman login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
