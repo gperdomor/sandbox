@@ -94,6 +94,7 @@ jobs:
           name: nx-main-artifacts
           path: dist
       - run: npm install
+        shell: bash
       # - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
       - run: npx nx affected --all --target=container --parallel=2
         env:

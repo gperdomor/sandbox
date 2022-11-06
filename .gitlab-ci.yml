@@ -112,7 +112,7 @@ docker-build:
 
 podman-build:
   extends: [.base-cache]
-  image: gperdomor/nx-podman:19.0.0
+  image: gperdomor/nx-podman:18.12.0
   needs:
     - nx-dte
   variables:
