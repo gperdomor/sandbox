@@ -1,5 +1,6 @@
 {
-  "root": "apps/next-app",
+  "name": "next-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/next-app",
   "projectType": "application",
   "targets": {
@@ -12,16 +13,24 @@
         "outputPath": "dist/apps/next-app"
       },
       "configurations": {
+        "development": {
+          "outputPath": "apps/next-app"
+        },
         "production": {}
       }
     },
     "serve": {
       "executor": "@nrwl/next:server",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "next-app:build",
         "dev": true
       },
       "configurations": {
+        "development": {
+          "buildTarget": "next-app:build:development",
+          "dev": true
+        },
         "production": {
           "buildTarget": "next-app:build:production",
           "dev": false
@@ -36,9 +45,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/next-app"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/next-app/jest.config.js",
+        "jestConfig": "apps/next-app/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -49,11 +58,12 @@
         "lintFilePatterns": ["apps/next-app/**/*.{ts,tsx,js,jsx}"]
       }
     },
-    "docker": {
-      "executor": "@nx-tools/nx-docker:build",
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
       "options": {
+        "engine": "docker",
         "metadata": {
-          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/next-app"],
+          "images": ["nx-docker-sandbox/next-app"],
           "load": true,
           "tags": [
             "type=schedule",

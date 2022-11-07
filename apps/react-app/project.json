@@ -1,10 +1,11 @@
 {
-  "root": "apps/react-app",
+  "name": "react-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/react-app/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
@@ -21,6 +22,12 @@
         "webpackConfig": "@nrwl/react/plugins/webpack"
       },
       "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
         "production": {
           "fileReplacements": [
             {
@@ -38,12 +45,17 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/web:dev-server",
+      "executor": "@nrwl/webpack:dev-server",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "react-app:build",
-        "hmr": true
+        "hmr": true,
+        "port": 4300
       },
       "configurations": {
+        "development": {
+          "buildTarget": "react-app:build:development"
+        },
         "production": {
           "buildTarget": "react-app:build:production",
           "hmr": false
@@ -59,17 +71,18 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/react-app"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/react-app/jest.config.js",
+        "jestConfig": "apps/react-app/jest.config.ts",
         "passWithNoTests": true
       }
     },
-    "docker": {
-      "executor": "@nx-tools/nx-docker:build",
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
       "options": {
+        "engine": "docker",
         "metadata": {
-          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/react-app"],
+          "images": ["nx-docker-sandbox/react-app"],
           "load": true,
           "tags": [
             "type=schedule",

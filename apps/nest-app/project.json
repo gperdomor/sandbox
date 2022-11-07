@@ -1,12 +1,15 @@
 {
-  "root": "apps/nest-app",
+  "name": "nest-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/nest-app/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "target": "node",
+        "compiler": "tsc",
         "outputPath": "dist/apps/nest-app",
         "main": "apps/nest-app/src/main.ts",
         "tsConfig": "apps/nest-app/tsconfig.app.json",
@@ -28,9 +31,14 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:node",
+      "executor": "@nrwl/js:node",
       "options": {
         "buildTarget": "nest-app:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "nest-app:build:production"
+        }
       }
     },
     "lint": {
@@ -42,17 +50,18 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/nest-app"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/nest-app/jest.config.js",
+        "jestConfig": "apps/nest-app/jest.config.ts",
         "passWithNoTests": true
       }
     },
-    "docker": {
-      "executor": "@nx-tools/nx-docker:build",
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
       "options": {
+        "engine": "docker",
         "metadata": {
-          "images": ["ghcr.io/gperdomor/nx-docker-sandbox/nest-app"],
+          "images": ["nx-docker-sandbox/nest-app"],
           "load": true,
           "tags": [
             "type=schedule",

@@ -105,7 +105,7 @@ export function Index() {
                 </svg>
               </a>
               <a
-                href="https://nx.dev/tutorial/01-create-application?utm_source=nx-project"
+                href="https://nx.dev/react-tutorial/1-code-generation?utm_source=nx-project"
                 target="_blank"
                 rel="noreferrer"
                 className="list-item-link"
@@ -227,9 +227,9 @@ export function Index() {
               </summary>
               <pre>
                 <span># Generate UI lib</span>
-                nx g @nrwl/angular:lib ui
+                nx g @nrwl/next:library ui
                 <span># Add a component</span>
-                nx g @nrwl/angular:component button --project ui
+                nx g @nrwl/next:component button --project=ui
               </pre>
             </details>
             <details>
