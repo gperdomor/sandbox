@@ -16,6 +16,7 @@ default:
 
 variables:
   NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+  GIT_DEPTH: 0
 
 ###############################
 ### Included Jobs
