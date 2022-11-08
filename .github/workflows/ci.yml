@@ -12,7 +12,7 @@ env:
 jobs:
   main:
     name: Nx Cloud - Main Job
-    uses: ./.github/workflows/nx-cloud-main.yml
+    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.9
     with:
       number-of-agents: 3
       parallel-commands: |
@@ -23,11 +23,12 @@ jobs:
         npx nx affected --target=test --parallel=3 --ci --code-coverage
         # npx nx affected --target=e2e --parallel=3 --ci --code-coverage
         npx nx affected --target=build --parallel=3
-      artifacts: dist/
+      artifacts-path: dist/
+      artifacts-name: dist-artifacts
 
   agents:
     name: Nx Cloud - Agents
-    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.8
+    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.9
     with:
       number-of-agents: 3
 
@@ -56,9 +57,10 @@ jobs:
           cache: 'npm'
           node-version-file: '.nvmrc'
       - name: 'Downloading artifacts'
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
-          name: nx-main-artifacts
+          name: dist-artifacts
           path: dist
       - run: npm install
       - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
@@ -88,9 +90,10 @@ jobs:
           cache: 'npm'
           node-version-file: '.nvmrc'
       - name: 'Downloading artifacts'
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
-          name: nx-main-artifacts
+          name: dist-artifacts
           path: dist
       - run: npm install
       - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
