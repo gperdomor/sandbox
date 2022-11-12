@@ -12,11 +12,10 @@ stages:
   - test
 
 default:
-  image: node:18.12.0
+  image: node:18.12.1
 
 variables:
   NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
-  GIT_DEPTH: 0
 
 ###############################
 ### Included Jobs
@@ -24,7 +23,7 @@ variables:
 license_scanning:
   needs: []
   variables:
-    ASDF_NODEJS_VERSION: '18.12.0'
+    ASDF_NODEJS_VERSION: '18.12.1'
 
 # Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
 secret_detection:
@@ -57,19 +56,20 @@ code_quality:
   interruptible: true
   before_script:
     - npm ci --cache .npm --prefer-offline
-    - NX_HEAD=$CI_COMMIT_SHA
-    - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
-  artifacts:
-    expire_in: 5 days
-    paths:
-      - node_modules/.cache/nx
-      - dist
+    # - NX_HEAD=$CI_COMMIT_SHA
+    # - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
 
 # Main job running DTE
 nx-dte:
   stage: affected
   extends: .base-pipeline
+  variables:
+    GIT_DEPTH: 0
   script:
+    - npx nx-set-shas gitlab -o nx.env
+    - set -a
+      [ -f nx.env ] && . nx.env
+      set +a
     - npx nx-cloud start-ci-run --stop-agents-after="build"
     - npx nx-cloud record -- npx nx workspace-lint --base=$NX_BASE --head=$NX_HEAD
     - npx nx-cloud record -- npx nx format:check --base=$NX_BASE --head=$NX_HEAD
@@ -77,6 +77,13 @@ nx-dte:
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=test --parallel=3 --ci --code-coverage
     # - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=e2e --parallel=3 --ci --code-coverage
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
+  artifacts:
+    expire_in: 5 days
+    paths:
+      - node_modules/.cache/nx
+      - dist
+    reports:
+      dotenv: nx.env
 
 # Create as many agents as you want
 nx-dte-agents:
@@ -88,7 +95,7 @@ nx-dte-agents:
 
 docker-build:
   extends: [.base-cache]
-  image: gperdomor/nx-docker:18.12.0-alpine
+  image: gperdomor/nx-docker:18.12.1-alpine
   services:
     - docker:20.10.21-dind
   needs:
@@ -113,7 +120,7 @@ docker-build:
 
 podman-build:
   extends: [.base-cache]
-  image: gperdomor/nx-podman:18.12.0
+  image: gperdomor/nx-podman:18.12.1
   needs:
     - nx-dte
   variables:
@@ -133,7 +140,7 @@ podman-build:
 
 kaniko-build:
   extends: [.base-cache]
-  image: gperdomor/nx-kaniko:18.12.0-alpine
+  image: gperdomor/nx-kaniko:18.12.1-alpine
   needs:
     - nx-dte
   variables:
