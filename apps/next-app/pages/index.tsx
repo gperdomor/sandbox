@@ -227,9 +227,9 @@ export function Index() {
               </summary>
               <pre>
                 <span># Generate UI lib</span>
-                nx g @nrwl/next:library ui
+                nx g @nx/next:library ui
                 <span># Add a component</span>
-                nx g @nrwl/next:component button --project=ui
+                nx g @nx/next:component button --project=ui
               </pre>
             </details>
             <details>

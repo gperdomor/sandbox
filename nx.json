@@ -3,7 +3,7 @@
   "npmScope": "nx-container-sandbox",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/nx-cloud",
+      "runner": "nx-cloud",
       "options": {
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "accessToken": "YzY0ZWEyZGItZmM3Ni00NTdiLTk0N2MtNTFhNTkwNjE1YzdhfHJlYWQ="
@@ -38,7 +38,7 @@
   },
   "defaultProject": "nest-app",
   "generators": {
-    "@nrwl/react": {
+    "@nx/react": {
       "application": {
         "style": "css",
         "linter": "eslint",
@@ -52,7 +52,7 @@
         "linter": "eslint"
       }
     },
-    "@nrwl/next": {
+    "@nx/next": {
       "application": {
         "style": "css",
         "linter": "eslint"
