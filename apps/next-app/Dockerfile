@@ -1,22 +1,17 @@
-# Install dependencies only when needed
-FROM node:20.0.0-alpine as deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
-WORKDIR /usr/src/app
-COPY dist/apps/next-app/package*.json ./
-RUN npm install --only=production
-
 # Production image, copy all the files and run next
-FROM node:20.0.0-alpine as runner
+FROM node:20.12-alpine as runner
 LABEL maintainer="Gustavo Perdomo <gperdomor@gmail.com>"
 RUN apk add --no-cache dumb-init
 ENV NODE_ENV production
 ENV PORT 3000
 WORKDIR /usr/src/app
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=deps /usr/src/app/package.json ./package.json
-COPY dist/apps/next-app/public ./public
-COPY dist/apps/next-app/.next ./.next
+COPY apps/next-app/next.config.js ./
+COPY apps/next-app/public ./public
+COPY apps/next-app/.next/standalone/apps/next-app ./
+COPY apps/next-app/.next/standalone/package.json ./
+COPY apps/next-app/.next/standalone/node_modules ./node_modules
+COPY apps/next-app/.next/static ./.next/static
+# RUN npm i sharp
 RUN chown -R node:node .
 USER node
 EXPOSE 3000
@@ -26,4 +21,4 @@ EXPOSE 3000
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry.
 ENV NEXT_TELEMETRY_DISABLED 1
-CMD ["dumb-init", "node_modules/.bin/next", "start"]
+CMD ["dumb-init", "node", "server.js"]

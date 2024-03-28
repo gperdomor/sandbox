@@ -38,8 +38,11 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.nx-container
-.env
+.nx/cache
 
 # Next.js
 .next
+out
+
+.nx-container
+.env

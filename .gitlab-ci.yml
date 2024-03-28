@@ -12,7 +12,7 @@ stages:
   - test
 
 default:
-  image: node:20.1
+  image: node:20.12
 
 variables:
   NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
@@ -23,7 +23,7 @@ variables:
 license_scanning:
   needs: []
   variables:
-    ASDF_NODEJS_VERSION: '20.1.0'
+    ASDF_NODEJS_VERSION: '20.12.0'
 
 # Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
 secret_detection:

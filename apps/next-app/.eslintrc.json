@@ -15,12 +15,12 @@
     {
       "files": ["*.js", "*.jsx"],
       "rules": {}
-    }
-  ],
-  "rules": {
-    "@next/next/no-html-link-for-pages": "off"
   },
+    {
+      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
   "env": {
     "jest": true
   }
+    }
+  ]
 }
