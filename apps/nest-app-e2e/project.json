@@ -4,6 +4,10 @@
   "implicitDependencies": ["nest-app"],
   "projectType": "application",
   "targets": {
+    "test": {
+      "executor": "nx:noop",
+      "cache": true
+    },
     "e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
