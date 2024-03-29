@@ -12,7 +12,7 @@ stages:
   - test
 
 default:
-  image: node:20.12
+  image: node:20.12@sha256:bf0ef0687ffbd6c7742e1919177826c8bf1756a68b51f003dcfe3a13c31c65fe
 
 ###############################
 ### Included Jobs
@@ -109,9 +109,9 @@ nx-dte-agent2:
 
 build:docker:
   extends: [.base-cache]
-  image: gperdomor/nx-docker:20.12-alpine
+  image: gperdomor/nx-docker:20.12-alpine@sha256:9596d545760ec0ae65c995cca4797b0027aff5dfa3bbf0bdf72b570f36b650b1
   services:
-    - docker:26.0.0-dind
+    - docker:26.0.0-dind@sha256:016c45d9e31461802186e8e9aaa394f35e173a8ce913ea7195a672cdc97102f2
   needs:
     - nx-dte
   variables:
@@ -131,7 +131,7 @@ build:docker:
 
 build:podman:
   extends: [.base-cache]
-  image: gperdomor/nx-podman:20.12
+  image: gperdomor/nx-podman:20.12@sha256:09846d555f955a5275a777c23d665c5317a410dad83a389edbdc97781e79bdd3
   needs:
     - nx-dte
   variables:
@@ -151,7 +151,7 @@ build:podman:
 
 build:kaniko:
   extends: [.base-cache]
-  image: gperdomor/nx-kaniko:20.12-alpine
+  image: gperdomor/nx-kaniko:20.12-alpine@sha256:3eeb48bfc98123010865c5e0a7b7a7747f739cb209d07d342dcc3bc2436487c8
   needs:
     - nx-dte
   variables:
