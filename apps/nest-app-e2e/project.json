@@ -1,8 +1,8 @@
 {
   "name": "nest-app-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["nest-app"],
   "projectType": "application",
+  "implicitDependencies": ["nest-app"],
   "targets": {
     "test": {
       "executor": "nx:noop",
