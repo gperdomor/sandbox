@@ -6,8 +6,10 @@ include:
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Jobs/Code-Quality.gitlab-ci.yml
   - template: Jobs/Code-Intelligence.gitlab-ci.yml
+  - component: gitlab.com/gl-components/nx-set-shas/nx-set-shas@0.0.1
 
 stages:
+  - .pre
   - affected
   - test
 
@@ -50,6 +52,7 @@ code_quality:
 # Creating template for DTE agents
 .dte-agent:
   extends: [.base-cache]
+  needs: []
   interruptible: true
   script:
     - npm ci --cache .npm --prefer-offline
@@ -80,10 +83,6 @@ nx-dte:
     GIT_DEPTH: 0
     NX_CLOUD_DISTRIBUTED_EXECUTION_AGENT_COUNT: 3
   script:
-    - npx nx-set-shas gitlab -o nx.env
-    - set -a
-      [ -f nx.env ] && . nx.env
-      set +a
     - npx nx-cloud start-ci-run --stop-agents-after=build
     - npx nx-cloud record -- nx format:check --base=$NX_BASE --head=$NX_HEAD
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint,test,build --parallel=3
@@ -93,10 +92,8 @@ nx-dte:
     paths:
       # - node_modules/.cache/nx
       - dist
-    reports:
-      dotenv: nx.env
   when: delayed
-  start_in: 30 seconds
+  start_in: 15 seconds
 
 # Create as many agents as you want
 nx-dte-agent1:
