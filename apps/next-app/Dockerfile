@@ -1,5 +1,5 @@
 # Production image, copy all the files and run next
-FROM node:20.12-alpine@sha256:ef3f47741e161900ddd07addcaca7e76534a9205e4cd73b2ed091ba339004a75 as runner
+FROM node:20.12-alpine@sha256:ebdb58b0d966033381e8eda11dad66a70dc22df2e1e36b5050fbd547299addae as runner
 LABEL maintainer="Gustavo Perdomo <gperdomor@gmail.com>"
 RUN apk add --no-cache dumb-init
 ENV NODE_ENV production
