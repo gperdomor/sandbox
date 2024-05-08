@@ -6,7 +6,7 @@ include:
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Jobs/Code-Quality.gitlab-ci.yml
   - template: Jobs/Code-Intelligence.gitlab-ci.yml
-  - component: gitlab.com/gl-components/nx-set-shas/nx-set-shas@0.0.1
+  - component: gitlab.com/gl-components/nx-set-shas/nx-set-shas@1.0.0
 
 stages:
   - .pre
