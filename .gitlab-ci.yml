@@ -77,6 +77,7 @@ nx-dte:
     GIT_DEPTH: 0
     NX_CLOUD_DISTRIBUTED_EXECUTION_AGENT_COUNT: 3
   script:
+    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx-cloud start-ci-run --stop-agents-after=build
     - npx nx-cloud record -- nx format:check --base=$NX_BASE --head=$NX_HEAD
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint,test,build --parallel=3
@@ -118,6 +119,7 @@ build:docker:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
+    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:podman:
@@ -138,6 +140,7 @@ build:podman:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | podman login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
+    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:kaniko:
@@ -159,4 +162,5 @@ build:kaniko:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
   script:
     # --parallel=1 needs to be 1 to work properly
+    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=1
