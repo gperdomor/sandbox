@@ -77,7 +77,6 @@ nx-dte:
     GIT_DEPTH: 0
     NX_CLOUD_DISTRIBUTED_EXECUTION_AGENT_COUNT: 3
   script:
-    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx-cloud start-ci-run --stop-agents-after=build
     - npx nx-cloud record -- nx format:check --base=$NX_BASE --head=$NX_HEAD
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint,test,build --parallel=3
@@ -104,8 +103,6 @@ build:docker:
   image: gperdomor/nx-docker:20.12-alpine@sha256:9596d545760ec0ae65c995cca4797b0027aff5dfa3bbf0bdf72b570f36b650b1
   services:
     - docker:26.0.0-dind@sha256:016c45d9e31461802186e8e9aaa394f35e173a8ce913ea7195a672cdc97102f2
-  needs:
-    - nx-dte
   variables:
     GIT_DEPTH: 0
     # Nx Contaienr
@@ -119,14 +116,11 @@ build:docker:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:podman:
   extends: [.base-cache]
   image: gperdomor/nx-podman:20.12@sha256:09846d555f955a5275a777c23d665c5317a410dad83a389edbdc97781e79bdd3
-  needs:
-    - nx-dte
   variables:
     GIT_DEPTH: 0
     # Nx Contaienr
@@ -140,14 +134,12 @@ build:podman:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | podman login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:kaniko:
   extends: [.base-cache]
   image: gperdomor/nx-kaniko:20.12-alpine@sha256:3eeb48bfc98123010865c5e0a7b7a7747f739cb209d07d342dcc3bc2436487c8
-  needs:
-    - nx-dte
+
   variables:
     GIT_DEPTH: 0
     # Nx Contaienr
@@ -162,5 +154,4 @@ build:kaniko:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
   script:
     # --parallel=1 needs to be 1 to work properly
-    - echo "Using NX_BASE=$NX_BASE -- NX_HEAD=$NX_HEAD"
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=1
