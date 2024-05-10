@@ -1,7 +1,6 @@
 include:
   - template: Workflows/MergeRequest-Pipelines.gitlab-ci.yml
   - template: Security/Dependency-Scanning.gitlab-ci.yml
-  - template: Security/License-Scanning.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Jobs/Code-Quality.gitlab-ci.yml
@@ -18,11 +17,6 @@ default:
 
 ###############################
 ### Included Jobs
-
-license_scanning:
-  needs: []
-  variables:
-    ASDF_NODEJS_VERSION: '20.12.0'
 
 # Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
 secret_detection:
