@@ -118,7 +118,7 @@ build:docker:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --no-dte --parallel=2
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:podman:
   extends: [.base-cache]
@@ -138,7 +138,7 @@ build:podman:
     # Login to registry
     - echo "$CI_REGISTRY_PASSWORD" | podman login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --no-dte --parallel=2
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=2
 
 build:kaniko:
   extends: [.base-cache]
@@ -159,4 +159,4 @@ build:kaniko:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n $CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
   script:
     # --parallel=1 needs to be 1 to work properly
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --no-dte --parallel=1
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t container --no-dte --parallel=1
