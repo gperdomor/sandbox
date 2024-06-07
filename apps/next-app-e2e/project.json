@@ -1,8 +1,0 @@
-{
-  "name": "next-app-e2e",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/next-app-e2e/src",
-  "implicitDependencies": ["next-app"],
-  "// targets": "to see all targets run: nx show project next-app-e2e --web",
-  "targets": {}
-}

@@ -1,0 +1,50 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:api"],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "api:build:development"
+        },
+        "production": {
+          "buildTarget": "api:build:production"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "tags": ["gperdomor/sandbox:dev"],
+        "load": true
+      },
+      "configurations": {
+        "ci": {
+          "load": false,
+          "push": true,
+          "quiet": true,
+          "metadata": {
+            "images": ["ghcr.io/gperdomor/sandbox/api"],
+            "tags": [
+              "type=schedule",
+              "type=ref,event=branch",
+              "type=ref,event=tag",
+              "type=ref,event=pr",
+              "type=sha,prefix=sha-"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
