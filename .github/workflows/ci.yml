@@ -1,109 +1,80 @@
 name: CI
+
 on:
   push:
     branches:
       - main
   pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
-  cancel-in-progress: true
+permissions:
+  actions: read
+  contents: read
 
 env:
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-  PRISMA_HIDE_UPDATE_MESSAGE: 'true'
+  NX_CLOUD_AUTH_TOKEN: ${{ secrets.NX_CLOUD_AUTH_TOKEN }}
 
 jobs:
   main:
-    name: Nx Cloud - Main Job
-    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@81f119483401ffde8275edf4c089b42e24b92cf4 # v0.14.0
-    with:
-      number-of-agents: 3
-      # NOTE: Here we are using the special `nx-cloud record` command to ensure that any commands we run that do not go through the cloud task runner natively
-      # (i.e. anything that starts with `nx run`/`nx run-many`/`nx affected --target`), are still captured in the Nx Cloud UI and Github App comment for
-      # easier troubleshooting. See more here: https://nx.dev/nx-cloud/set-up/record-commands#recording-non-nx-commands
-      parallel-commands: |
-        npx nx-cloud record -- npx nx format:check
-      parallel-commands-on-agents: |
-        npx nx affected --target=lint --parallel=3
-        npx nx affected --target=test --parallel=3 --ci --code-coverage
-        npx nx affected --target=build --parallel=3
-      artifacts-path: dist/
-      artifacts-name: dist-artifacts
-
-  agents:
-    name: Nx Cloud - Agents
-    uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@81f119483401ffde8275edf4c089b42e24b92cf4 # v0.14.0
-    with:
-      number-of-agents: 3
-
-  docker-build:
-    needs: main
     runs-on: ubuntu-latest
-    env:
-      INPUT_PUSH: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3
+
+      - uses: pnpm/action-setup@v4
+
+      # Connect your workspace on nx.app and uncomment this to enable task distribution.
+      # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "build" targets have been requested
+      - run: pnpm dlx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
+
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: nrwl/nx-set-shas@v4
+
+      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
+      # - run: pnpm exec nx-cloud record -- echo Hello World
+      - run: pnpm exec nx-cloud record -- nx format:check
+      - run: pnpm exec nx affected -t lint test build
+
+  container:
+    needs: main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@76907e7e5d3cd17ddb5e2b123389f054bffcdd03 # v4
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-      - name: 'Downloading artifacts'
-        continue-on-error: true
-        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4
-        with:
-          name: dist-artifacts
-          path: dist
-      - run: npm install
-      - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
-        env:
-          INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_NEST_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/nest-app-with-docker
-          INPUT_NEXT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/next-app-with-docker
-          INPUT_REACT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/react-app-with-docker
 
-  podman-build:
-    needs: main
-    runs-on: ubuntu-latest
-    env:
-      INPUT_PUSH: true
-      INPUT_ENGINE: podman
-    steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: pnpm/action-setup@v4
+
+      # Cache node_modules
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-      - name: Login to GitHub Container Registry
-        run: echo "${{ github.token }}" | podman login -u ${{ github.actor }} --password-stdin ghcr.io/${{ github.repository_owner }}
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@76907e7e5d3cd17ddb5e2b123389f054bffcdd03 # v4
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4
-        with:
-          cache: 'npm'
-          node-version-file: '.nvmrc'
-      - name: 'Downloading artifacts'
-        continue-on-error: true
-        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4
-        with:
-          name: dist-artifacts
-          path: dist
-      - run: npm install
-      - run: npx nx affected --base=$NX_BASE --head=$NX_HEAD --target=container --parallel=2
+          node-version: 22
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: nrwl/nx-set-shas@v4
+
+      - run: pnpm exec nx affected --target=container --configuration=ci --parallel=2
         env:
           INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          INPUT_NEST_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/nest-app-with-podman
-          INPUT_NEXT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/next-app-with-podman
-          INPUT_REACT_APP_IMAGES: ghcr.io/gperdomor/nx-container-sandbox/react-app-with-podman

@@ -14,7 +14,7 @@
     ],
     "sharedGlobals": []
   },
-  "nxCloudAccessToken": "YzY0ZWEyZGItZmM3Ni00NTdiLTk0N2MtNTFhNTkwNjE1YzdhfHJlYWQ=",
+  "nxCloudAccessToken": "ODljNDYxODQtYzQ3Yi00Njc0LWJlNDItMTVhYzgyZGIxZmNmfHJlYWQ=",
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",
@@ -34,55 +34,8 @@
       "plugin": "@nx/jest/plugin",
       "options": {
         "targetName": "test"
-      }
-    },
-    {
-      "plugin": "@nx/next/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "devTargetName": "dev",
-        "startTargetName": "start",
-        "serveStaticTargetName": "serve-static"
-      }
-    },
-    {
-      "plugin": "@nx/playwright/plugin",
-      "options": {
-        "targetName": "e2e"
-      }
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
-        "serveTargetName": "serve",
-        "serveStaticTargetName": "serve-static"
-      }
-    }
-  ],
-  "generators": {
-    "@nx/next": {
-      "application": {
-        "style": "css",
-        "linter": "eslint"
-      }
-    },
-    "@nx/react": {
-      "application": {
-        "babel": true,
-        "style": "css",
-        "linter": "eslint",
-        "bundler": "vite"
       },
-      "component": {
-        "style": "css"
-      },
-      "library": {
-        "style": "css",
-        "linter": "eslint"
-      }
+      "exclude": ["apps/api-e2e/**/*"]
     }
-  }
+  ]
 }

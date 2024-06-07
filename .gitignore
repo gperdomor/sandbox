@@ -39,10 +39,4 @@ testem.log
 Thumbs.db
 
 .nx/cache
-
-# Next.js
-.next
-out
-
-.nx-container
-.env
+.nx/workspace-data
