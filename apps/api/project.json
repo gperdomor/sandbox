@@ -25,7 +25,7 @@
       "dependsOn": ["build"],
       "options": {
         "engine": "docker",
-        "tags": ["gperdomor/sandbox:dev"],
+        "tags": ["gperdomor/sandbox/api:dev"],
         "load": true
       },
       "configurations": {

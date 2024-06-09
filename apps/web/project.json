@@ -4,6 +4,32 @@
   "sourceRoot": "apps/web",
   "projectType": "application",
   "tags": ["type:app"],
-  "// targets": "to see all targets run: nx show project web --web",
-  "targets": {}
+  "targets": {
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "podman",
+        "tags": ["gperdomor/sandbox/web:dev"],
+        "load": true
+      },
+      "configurations": {
+        "ci": {
+          "load": false,
+          "push": true,
+          "quiet": true,
+          "metadata": {
+            "images": ["ghcr.io/gperdomor/sandbox/web"],
+            "tags": [
+              "type=schedule",
+              "type=ref,event=branch",
+              "type=ref,event=tag",
+              "type=ref,event=pr",
+              "type=sha,prefix=sha-"
+            ]
+          }
+        }
+      }
+    }
+  }
 }
