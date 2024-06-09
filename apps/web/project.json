@@ -1,31 +1,16 @@
 {
-  "name": "api",
+  "name": "web",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/web",
   "projectType": "application",
-  "tags": ["type:app", "scope:api"],
+  "tags": ["type:app"],
   "targets": {
-    "serve": {
-      "executor": "@nx/js:node",
-      "defaultConfiguration": "development",
-      "options": {
-        "buildTarget": "api:build"
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "api:build:development"
-        },
-        "production": {
-          "buildTarget": "api:build:production"
-        }
-      }
-    },
     "container": {
       "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
       "options": {
-        "engine": "docker",
-        "tags": ["gperdomor/sandbox/api:dev"],
+        "engine": "podman",
+        "tags": ["gperdomor/sandbox/web:dev"],
         "load": true
       },
       "configurations": {
@@ -34,7 +19,7 @@
           "push": true,
           "quiet": true,
           "metadata": {
-            "images": ["ghcr.io/gperdomor/sandbox/api"],
+            "images": ["ghcr.io/gperdomor/sandbox/web"],
             "tags": [
               "type=schedule",
               "type=ref,event=branch",
